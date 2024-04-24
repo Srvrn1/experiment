@@ -42,7 +42,7 @@ void ICACHE_RAM_ATTR isr();  //зарание оъявляем, не то веч
 
 void onunix(uint32_t stamp) {
     Serial.println(stamp);
-    time_sist = stamp % 86400 + 32400;    //получаем только время и корректируем часовой пояс
+    time_sist = (stamp + 32400) % 86400;    //получаем только время и корректируем часовой пояс
     Serial.println(time_sist);
 }
 
