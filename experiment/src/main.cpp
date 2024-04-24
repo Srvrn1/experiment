@@ -109,6 +109,7 @@ void radio(){                     // Принимаем радио!!!
 }
 
 void build(gh::Builder& b) {      // билдер  ///////////////
+  b.Display(&time_sist);
   if (b.beginRow()) {
     b.Display_("dispTemp", temperatureC).label("мо6ильный датчик").color(gh::Colors::Aqua); 
     b.Display_("dispCount", count_t).label("счетчик ").color(gh::Colors::Blue);
@@ -134,7 +135,7 @@ void setup() {
     hub.mqtt.config(mqtt_server, mqtt_port, mqtt_user, mqtt_password);
 
     attachInterrupt(0, isr, CHANGE);  // взводим прерывания по CHANGE
-    hub.setVersion("Srvrn1/base-station@1.0");
+    hub.setVersion("Srvrn1/experiment@1.0");
     hub.onUnix(onunix);
     hub.onBuild(build);               // подключаем билдер
     hub.begin();                      // запускаем систему
