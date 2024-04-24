@@ -1,0 +1,17 @@
+{
+  "name": "GyverHub-example",
+  "about": "Образец оформления репозитория проекта",
+  "version": "2.1",
+  "notes": "Исправлены мелкие баги",
+  "builds": [
+    {
+      "chipFamily": "ESP8266",
+      "parts": [
+        {
+          "path": "https://github.com/Srvrn1/experiment/releases/download/starting_/firmware.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}
