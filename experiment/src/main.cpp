@@ -135,7 +135,7 @@ void setup() {
     hub.mqtt.config(mqtt_server, mqtt_port, mqtt_user, mqtt_password);
 
     attachInterrupt(0, isr, CHANGE);  // взводим прерывания по CHANGE
-    hub.setVersion("Srvrn1/experiment@1.0");
+    hub.setVersion("Srvrn1/experiment@1.1");
     hub.onUnix(onunix);
     hub.onBuild(build);               // подключаем билдер
     hub.begin();                      // запускаем систему
