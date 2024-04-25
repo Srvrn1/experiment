@@ -130,7 +130,7 @@ void build(gh::Builder& b) {      // билдер  ///////////////
 
 void setup() {
     Serial.begin(74880);
-    Serial.println("ПОЕХАЛИ!!!");
+    Serial.println("ПОЕХАЛИ 111!!!");
     
     pinMode(led, OUTPUT);
     setup_wifi();
