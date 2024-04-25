@@ -40,7 +40,7 @@ const char* mqtt_password = "HilZPRjD";
 ////////////////////////////////////////
 void ICACHE_RAM_ATTR isr();  //зарание оъявляем, не то вечный ре6ут
 
-void onunix(uint32_t stamp) {
+void onunix(uint32_t stamp) {                //получаем дату время
     Serial.println(stamp);
     time_sist = (stamp + 32400) % 86400;    //получаем только время и корректируем часовой пояс
     Serial.println(time_sist);
@@ -87,7 +87,7 @@ void radio(){                     // Принимаем радио!!!
       Serial.println(rx.buffer[1] << 8 | rx.buffer[2]);
       
       incomin = (rx.buffer[1] << 8 | rx.buffer[2]);
-      //voltage = incomin * (3.2 / 1024);
+      
       temperatureC = (incomin * (3.2 / 1024) - 0.5) * 100 ; //исходя из 10 мВ на градус со смещением 500 мВ
       Serial.print(temperatureC); Serial.println("  C");
 
@@ -98,8 +98,10 @@ void radio(){                     // Принимаем радио!!!
       break;
 
       case 2:
-      Serial.print("datchik: ");
-      Serial.println(rx.buffer[1] << 8 | rx.buffer[2]);
+      hub.sendUpdate(F("led")),rx.buffer[1];
+      Serial.print("кнопка: ");
+      Serial.println(rx.buffer[1]);
+      //Serial.println(rx.buffer[1] << 8 | rx.buffer[2]);
       break;
 
       default:
@@ -110,6 +112,7 @@ void radio(){                     // Принимаем радио!!!
 
 void build(gh::Builder& b) {      // билдер  ///////////////
   b.Display(&time_sist);
+  b.LED_(F("led"));
   if (b.beginRow()) {
     b.Display_("dispTemp", temperatureC).label("мо6ильный датчик").color(gh::Colors::Aqua); 
     b.Display_("dispCount", count_t).label("счетчик ").color(gh::Colors::Blue);
@@ -153,7 +156,6 @@ void loop() {
   if(millis() - ltime > 100) digitalWrite(led, HIGH);       //тушим лампочку радио
 
   static GH::Timer tmr(1000);
-
   if(tmr){
     time_sist++;
     if(time_sist >= 86400) time_sist = 0;        //время в Unix формате с6расываем в 00 часов
