@@ -40,10 +40,8 @@ const char* mqtt_password = "HilZPRjD";
 ////////////////////////////////////////
 void ICACHE_RAM_ATTR isr();  //зарание оъявляем, не то вечный ре6ут
 
-void onunix(uint32_t stamp) {                //получаем дату время
-    Serial.println(stamp);
+void onunix(uint32_t stamp) {                //получаем дату время. ра6отает!!!
     time_sist = (stamp + 32400) % 86400;    //получаем только время и корректируем часовой пояс
-    Serial.println(time_sist);
 }
 
 void isr() {                      // тикер радио вызывается в прерывании
@@ -111,8 +109,7 @@ void radio(){                     // Принимаем радио!!!
 }
 
 void build(gh::Builder& b) {      // билдер  ///////////////
-  b.Display(&time_sist);
-  b.LED_(F("led"));
+  b.LED_(F("led"));               //сра6отает от радио усстройства 2
   if (b.beginRow()) {
     b.Display_("dispTemp", temperatureC).label("мо6ильный датчик").color(gh::Colors::Aqua); 
     b.Display_("dispCount", count_t).label("счетчик ").color(gh::Colors::Blue);
