@@ -10,8 +10,8 @@
 uint8_t device;             //какой датчик прислал данные
 uint16 incomin;             //Входящие данные по радио
 int temperatureC;           //вычисленная температура
-uint16 count_t = 600;
-uint16_t countdown;         //таймер ожидания от радио температуры
+uint16 count_t = 601;
+int16_t countdown = 5;         //таймер ожидания от радио температуры
 uint32_t time_sist;         //время системы
 uint32_t time_radio;        //время прихода радио
 uint32_t ltime;
@@ -128,7 +128,7 @@ void build(gh::Builder& b) {      // билдер  ///////////////
 
 void setup() {
     Serial.begin(74880);
-    Serial.println("ПОЕХАЛИ 111!!!");
+    Serial.println("ПОЕХАЛИ 222!!!");
     
     pinMode(led, OUTPUT);
     setup_wifi();
@@ -156,7 +156,8 @@ void loop() {
   static GH::Timer tmr(1000);
   if(tmr){
     countdown--;
-    if(!countdown){                                        //если долго нет сигнала от датчика №1
+    if(countdown < 0){                                     //если долго нет сигнала от датчика №1
+      countdown = 900;                                     //15 min
       temperatureC = 888;
       hub.sendStatus(F("dispTemp"));                       //выводим 888 - код оши6ки
     }
