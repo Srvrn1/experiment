@@ -1,8 +1,5 @@
 #include <Arduino.h>
 
-
-#include <Arduino.h>
-
 #define G433_SPEED 1000   //О6ЯЗАТЕЛЬНО!!! перед подключением 6и6лиотек
 
 #include <Gyver433.h>
@@ -13,7 +10,8 @@
 uint8_t device;             //какой датчик прислал данные
 uint16 incomin;             //Входящие данные по радио
 int temperatureC;           //вычисленная температура
-uint16 count_t = 485;
+uint16 count_t = 600;
+uint16_t countdown;         //таймер ожидания от радио температуры
 uint32_t time_sist;         //время системы
 uint32_t time_radio;        //время прихода радио
 uint32_t ltime;
@@ -31,7 +29,7 @@ Gyver433_RX<0, 5> rx;       //6ля!!!0- ЭТО D3 пин esp!!! 5 6айт- 6у�
 const char* ssid = "RT-WiFi-6359";
 const char* password = "EJirUCda4A";
 
-// MQTT  /////////////
+//   MQTT  /////////////
 const char* mqtt_server = "m4.wqtt.ru";
 const int mqtt_port = 9478;
 const char* mqtt_user = "u_5A3C2X";
@@ -78,8 +76,13 @@ void radio(){                     // Принимаем радио!!!
     device = rx.buffer[0];
     
     switch (device){
+      case 0:
+      Serial.println("okokok");
+      break;
+
       case 1:                                         // 1- переносной первый датчик
       time_radio = time_sist;
+      countdown = 900;                                //счетчик на 15 мин
       count_t++;
       Serial.print("termo: ");
       Serial.println(rx.buffer[1] << 8 | rx.buffer[2]);
@@ -92,14 +95,12 @@ void radio(){                     // Принимаем радио!!!
       hub.sendUpdate("dispTemp");
       hub.sendUpdate("dispCount");
       hub.sendUpdate(F("t_in"));
-
       break;
 
       case 2:
-      hub.sendUpdate(F("led")),rx.buffer[1];
+      hub.sendUpdate(F("led"),rx.buffer[1]);
       Serial.print("кнопка: ");
       Serial.println(rx.buffer[1]);
-      //Serial.println(rx.buffer[1] << 8 | rx.buffer[2]);
       break;
 
       default:
@@ -122,7 +123,7 @@ void build(gh::Builder& b) {      // билдер  ///////////////
     b.Time_(F("t_off"), &t_off).label(F("выкл")).color(gh::Colors::Green);
     b.endRow();
   }
-  b.Switch_(F("Swit"), &sw_stat).label(F("выключатель"));
+  b.Switch_(F("Swit"), &sw_stat).label(F("включатель"));
 }
 
 void setup() {
@@ -144,9 +145,9 @@ void setup() {
 
 void loop() {
 
-  hub.tick();         // тикаем тут
+  hub.tick();                                               // тикаем тут
   
-  if (rx.gotData()) {             //если пришло радио
+  if (rx.gotData()) {                                       //если пришло радио
     radio();
   }
 
@@ -154,11 +155,16 @@ void loop() {
 
   static GH::Timer tmr(1000);
   if(tmr){
+    countdown--;
+    if(!countdown){                                        //если долго нет сигнала от датчика №1
+      temperatureC = 888;
+      hub.sendStatus(F("dispTemp"));                       //выводим 888 - код оши6ки
+    }
     time_sist++;
-    if(time_sist >= 86400) time_sist = 0;        //время в Unix формате с6расываем в 00 часов
+    if(time_sist >= 86400) time_sist = 0;                   //время в Unix формате с6расываем в 00 часов
     hub.sendUpdate(F("time"));
 
-    if(time_sist == t_on){
+    if(time_sist == t_on){                                 //6удильник включаем Switch
       sw_stat = 1;
       hub.sendUpdate(F("Swit"));
     }
